@@ -10,4 +10,7 @@ const asynchandler=(requestHandler)=>{
                 });
             });
     }
+    
 }
+
+export {asynchandler}

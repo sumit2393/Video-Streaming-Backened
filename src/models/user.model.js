@@ -60,6 +60,7 @@ const userSchema = new mongoose.Schema({
             const hash = await bcrypt.hash(this.password, salt);
             this.password = hash;
             next();
+            
         } catch (error) {
             next(error);
         }
@@ -79,7 +80,7 @@ userSchema.methods.generateAccessToken = function () {
 }
 userSchema.methods.generateRefreshToken = function () {
     return jwt.sign(
-        { id: this._id, name: this.name, email: this.email },
+        { id: this._id, name: this.name, email: this.email, fullName: this.fullName },
         process.env.REFRESH_TOKEN_SECRET || 'default_refresh_token_secret',
         { expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN || '7d' }
     );

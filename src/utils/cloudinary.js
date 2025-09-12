@@ -1,7 +1,4 @@
-import { v2 as cloudinary } from "cloudinary";
 import fs from "fs";
-
-
 import { v2 as cloudinary } from 'cloudinary';
 
 
@@ -36,4 +33,4 @@ const uploadcloudinary = async (localfilePath) => {
 
 
 }
-export { uploadcloudinary, cloudinary };
+export {uploadcloudinary};

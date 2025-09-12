@@ -4,14 +4,6 @@ import jwt from "jsonwebtoken"
 import bcrypt from "bcrypt";
 
 const userSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: true,
-        unique: true,
-        lowercase: true,
-        trim: true,
-        index: true
-    },
     email: {
         type: String,
         required: true,
@@ -73,14 +65,14 @@ userSchema.methods.comparePassword = async function (candidatePassword) {
 }
 userSchema.methods.generateAccessToken = function () {
     jwt.sign(
-        { id: this._id, name: this.name, email: this.email,fullName:this.fullName },
+        { id: this._id, email: this.email,fullName:this.fullName },
         process.env.ACCESS_TOKEN_SECRET || 'default_access_token_secret',
         { expiresIn: process.env.ACCESS_TOKEN_EXPIRES_IN || '1h' }
     );
 }
 userSchema.methods.generateRefreshToken = function () {
     return jwt.sign(
-        { id: this._id, name: this.name, email: this.email, fullName: this.fullName },
+        { id: this._id, email: this.email, fullName: this.fullName },
         process.env.REFRESH_TOKEN_SECRET || 'default_refresh_token_secret',
         { expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN || '7d' }
     );

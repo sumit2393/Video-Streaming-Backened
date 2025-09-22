@@ -2,13 +2,14 @@ import mongoose from 'mongoose';
 
 import jwt from "jsonwebtoken"
 import bcrypt from "bcrypt";
+import crypto from "crypto";
 
 const userSchema = new mongoose.Schema({
     email: {
         type: String,
         required: true,
         unique: true,
-        lowecase: true,
+        lowercase: true,
         trim: true,
     },
    password: {
@@ -35,7 +36,9 @@ const userSchema = new mongoose.Schema({
     }],
     refreshToken: {
         type: String
-    }
+    },
+    forgotPasswordToken: String,
+    forgotPasswordExpiry: Date
 
 },
 
@@ -43,28 +46,20 @@ const userSchema = new mongoose.Schema({
         timestamps: true
     });
 
-    userSchema.pre   ('save', async function (next) {
-        if (!this.isModified('password')) {
-            return next();
-        }
-        try {
-            const salt = await bcrypt.genSalt(10);
-            const hash = await bcrypt.hash(this.password, salt);
-            this.password = hash;
-            next();
-            
-        } catch (error) {
-            next(error);
-        }
+    userSchema.pre("save", async function (next) {
+    if(!this.isModified("password")) return next();
 
-    }
+    this.password = await bcrypt.hash(this.password, 10)
+    next()
+})
 
-);
-userSchema.methods.comparePassword = async function (candidatePassword) {
-    return await bcrypt.compare(candidatePassword, this.password);
+userSchema.methods.comparePassword = async function (password) {
+    
+    return await bcrypt.compare(password, this.password);
+    
 }
 userSchema.methods.generateAccessToken = function () {
-    jwt.sign(
+   return jwt.sign(
         { id: this._id, email: this.email,fullName:this.fullName },
         process.env.ACCESS_TOKEN_SECRET || 'default_access_token_secret',
         { expiresIn: process.env.ACCESS_TOKEN_EXPIRES_IN || '1h' }
@@ -77,4 +72,14 @@ userSchema.methods.generateRefreshToken = function () {
         { expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN || '7d' }
     );
 }
+
+userSchema.methods.getForgotPasswordToken = function () {
+    const forgotToken = crypto.randomBytes(20).toString('hex');
+
+    this.forgotPasswordToken = crypto.createHash('sha256').update(forgotToken).digest('hex');
+    this.forgotPasswordExpiry = Date.now() + 15 * 60 * 1000; // 15 minutes
+
+    return forgotToken;
+};
+
     export const User = mongoose.model('User', userSchema);

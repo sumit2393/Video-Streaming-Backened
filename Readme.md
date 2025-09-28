@@ -1,0 +1,1 @@
+NiceTube is a video streaming and sharing platform that allows users and content creators to upload, view, and interact with videos. The platform supports both web and mobile interfaces, providing a seamless experience for watching, sharing, and discovering video content.
